@@ -1,0 +1,32 @@
+.cat {
+  background-image: url("./../../assets/img/lunaSailor.png");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  height: 200px;
+  width: 300px;
+}
+
+/* .read {
+  background-image: url("./../../assets/img/read.gif");
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  border-radius: 4em;
+  height: 250px;
+  width: 200px;
+} */
+
+.jumbotron {
+  background-color: #5a6e82;
+}
+
+.container {
+  display: flex;
+  flex-wrap: nowrap;
+}
+
+.display-4 {
+  font-weight: 500;
+  margin-top: 50px;
+}
