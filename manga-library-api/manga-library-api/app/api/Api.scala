@@ -3,9 +3,9 @@ package api
 import javax.inject.Inject
 
 import com.manga.library.model.Error
-import com.wix.accord.Descriptions
 import com.wix.accord.transform.ValidationTransform.TransformedValidator
-import play.api.libs.json.{Json, Reads, Writes}
+import com.wix.accord.{Descriptions, Failure}
+import play.api.libs.json.{Json, JsonValidationError, Reads, Writes}
 import play.api.mvc.InjectedController
 
 import scala.concurrent.ExecutionContext
@@ -24,19 +24,24 @@ trait Api extends InjectedController {
       jsValue.validate[A].asEither match {
         case Left(syntaxErrors) =>
           val errors = syntaxErrors.toList.flatMap {
-            case (jsPath, violations) => violations.map { violation =>
-              Error(jsPath.toString(), violation.message)
-            }
+            case (jsPath, violations) =>
+              val parseViolationToErrorModel = (violations: Seq[JsonValidationError]) => {
+                violations.map { violation =>
+                  Error(jsPath.toString(), violation.message)
+                }
+              }
+              parseViolationToErrorModel.apply(violations)
           }
           Left(BadRequest.toJson(errors))
         case Right(obj) =>
-          val errors = validator(obj).toFailure.map { failure =>
+          val inCaseFailureParseToErrorModel = (failure: Failure) => {
             failure.violations.map { violation =>
               Error(Descriptions.render(violation.path), violation.constraint)
             }
           }
-          errors
-            .map(_ => Left(BadRequest.toJson(errors)))
+          val errorsOpt = validator(obj).toFailure.map(inCaseFailureParseToErrorModel.apply)
+          errorsOpt
+            .map(errors => Left(BadRequest.toJson(errors)))
             .getOrElse(Right(obj))
       }
     }
