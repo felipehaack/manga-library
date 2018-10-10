@@ -1,0 +1,8 @@
+# Ignore all dotfiles...
+.*
+# Except for
+!.gitignore
+!.editorconfig
+#Ignore
+target/
+logs/
